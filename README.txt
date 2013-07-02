@@ -6,3 +6,5 @@ Simple C program to display colors by their RGB code. Uses GLUT
 
 Controls:
    Arrow keys - select/change RGB component.
+   b - turn blending on/off.
+   q - exit.
