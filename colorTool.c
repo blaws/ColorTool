@@ -3,29 +3,30 @@
 #include <GLUT/glut.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "font.h"
 
-float currentColor[6];
-int currentIndex,blendEn;
+float currentColor[8];
+int currentIndex,blendType;
 
 void display(void){
   int i;
   glClear(GL_COLOR_BUFFER_BIT);
 
   // RGB color bars
-  for(i=0;i<3;i++){
-    glColor3f(i==0,i==1,i==2);
+  for(i=0;i<4;i++){
+    glColor3f(i==0||i==3,i==1||i==3,i==2||i==3);
     glRectf(50*i+100,400,50*i+110,400-300*currentColor[i]);
   }
   // second color bars for blending
-  if(blendEn){
-    for(i=0;i<3;i++){
-      glColor3f(i==0,i==1,i==2);
-      glRectf(50*i+500,400,50*i+510,400-300*currentColor[i+3]);
+  if(blendType){
+    for(i=0;i<4;i++){
+      glColor3f(i==0||i==3,i==1||i==3,i==2||i==3);
+      glRectf(50*i+550,400,50*i+560,400-300*currentColor[i+4]);
     }
   }
 
   // currentIndex indicator
-  int offset = currentIndex>2 ? 340 : 90;
+  int offset = currentIndex>3 ? 340 : 90;
   glColor3f(1,1,0);
   glBegin(GL_TRIANGLES);
   glVertex2f(50*currentIndex+offset+5,420);
@@ -34,15 +35,26 @@ void display(void){
   glEnd();
 
   // central square of current color
-  glColor3f(currentColor[0],currentColor[1],currentColor[2]);
-  //glRectf(250,150,450,350);
+  glColor4f(currentColor[0],currentColor[1],currentColor[2],currentColor[3]);
+  //glRectf(300,150,500,350);
   glBegin(GL_QUADS);
-  glVertex2f(250,150);
-  glVertex2f(250,350);
-  if(blendEn) glColor3f(currentColor[3],currentColor[4],currentColor[5]);
-  glVertex2f(450,350);
-  glVertex2f(450,150);
+  glVertex2f(300,150);
+  glVertex2f(300,350);
+  if(blendType==1) glColor4f(currentColor[4],currentColor[5],currentColor[6],currentColor[7]);
+  glVertex2f(500,350);
+  glVertex2f(500,150);
   glEnd();
+  if(blendType==2){
+    glColor4f(currentColor[4],currentColor[5],currentColor[6],currentColor[7]);
+    glRectf(300,150,500,350);
+  }
+
+  // current blend mode identifier
+  char message[][10] = {"SOLID","GRADIENT","BLEND"};
+  glColor3f(1.0,1.0,1.0);
+  glRasterPos2i(375,125);
+  printString(message[blendType]);
+
   glutSwapBuffers();
 }
 
@@ -63,10 +75,11 @@ void mouse(int button,int state,int x,int y){
 void keyboard(unsigned char key,int x,int y){
   switch(key){
   case 'b':
-    blendEn = !blendEn;
-    if(!blendEn && currentIndex>2) currentIndex=2;
+    blendType = (blendType+1) % 3;
+    if(!blendType && currentIndex>3) currentIndex=3;
     break;
   case 'q':
+  case 27:  // ESC key
     exit(0);
     break;
   default:
@@ -86,10 +99,10 @@ void keyboardSpecials(int key,int x,int y){
     if(currentColor[currentIndex]<0.0) currentColor[currentIndex]=0.0;
     break;
   case GLUT_KEY_LEFT:
-    currentIndex = (currentIndex+(blendEn?5:2)) % (blendEn ? 6 : 3);
+    currentIndex = (currentIndex+(blendType?6:3)) % (blendType ? 7 : 4);
     break;
   case GLUT_KEY_RIGHT:
-    currentIndex = (currentIndex+1) % (blendEn ? 6 : 3);
+    currentIndex = (currentIndex+1) % (blendType ? 8 : 4);
     break;
   default:
     break;
@@ -100,14 +113,19 @@ void keyboardSpecials(int key,int x,int y){
 
 int main(int argc,char* argv[]){
   int i;
-  for(i=0;i<6;i++) currentColor[i] = 1.0;
-  currentIndex = blendEn = 0;
+  for(i=0;i<8;i++) currentColor[i] = 1.0;
+  currentIndex = blendType = 0;
 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
   glutInitWindowSize(800,500);
   glutInitWindowPosition(100,100);
   glutCreateWindow(argv[0]);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+  makeRasterFont();
 
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
