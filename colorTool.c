@@ -10,18 +10,27 @@ int currentIndex,blendType;
 
 void display(void){
   int i;
+  char value[100];
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // RGB color bars
+  // RGB color bars and labels
   for(i=0;i<4;i++){
-    glColor3f(i==0||i==3,i==1||i==3,i==2||i==3);
+    glColor4f(i==0||i==3,i==1||i==3,i==2||i==3,currentColor[3]);
     glRectf(50*i+100,400,50*i+110,400-300*currentColor[i]);
+    sprintf(value,"%.0f",255*currentColor[i]);
+    glColor4f(i==0||i==3,i==1||i==3,i==2||i==3,1.0);
+    glRasterPos2i(50*i+90,420);
+    printString(value);
   }
   // second color bars for blending
   if(blendType){
     for(i=0;i<4;i++){
-      glColor3f(i==0||i==3,i==1||i==3,i==2||i==3);
+      glColor4f(i==0||i==3,i==1||i==3,i==2||i==3,currentColor[7]);
       glRectf(50*i+550,400,50*i+560,400-300*currentColor[i+4]);
+      sprintf(value,"%.0f",255*currentColor[i+4]);
+      glColor4f(i==0||i==3,i==1||i==3,i==2||i==3,1.0);
+      glRasterPos2i(50*i+540,420);
+      printString(value);
     }
   }
 
@@ -29,9 +38,9 @@ void display(void){
   int offset = currentIndex>3 ? 340 : 90;
   glColor3f(1,1,0);
   glBegin(GL_TRIANGLES);
-  glVertex2f(50*currentIndex+offset+5,420);
-  glVertex2f(50*currentIndex+offset+15,410);
-  glVertex2f(50*currentIndex+offset+25,420);
+  glVertex2f(50*currentIndex+offset+5,440);
+  glVertex2f(50*currentIndex+offset+15,430);
+  glVertex2f(50*currentIndex+offset+25,440);
   glEnd();
 
   // central square of current color
@@ -50,9 +59,9 @@ void display(void){
   }
 
   // current blend mode identifier
-  char message[][10] = {"SOLID","GRADIENT","BLEND"};
+  char message[][11] = {"SOLID","GRADIENT","BLEND"};
   glColor3f(1.0,1.0,1.0);
-  glRasterPos2i(375,125);
+  glRasterPos2i(blendType==1?360:375,125);
   printString(message[blendType]);
 
   glutSwapBuffers();
@@ -99,7 +108,7 @@ void keyboardSpecials(int key,int x,int y){
     if(currentColor[currentIndex]<0.0) currentColor[currentIndex]=0.0;
     break;
   case GLUT_KEY_LEFT:
-    currentIndex = (currentIndex+(blendType?6:3)) % (blendType ? 7 : 4);
+    currentIndex = (currentIndex+(blendType?7:3)) % (blendType ? 8 : 4);
     break;
   case GLUT_KEY_RIGHT:
     currentIndex = (currentIndex+1) % (blendType ? 8 : 4);
