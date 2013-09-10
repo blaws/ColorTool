@@ -45,7 +45,6 @@ void display(void){
 
   // central square of current color
   glColor4f(currentColor[0],currentColor[1],currentColor[2],currentColor[3]);
-  //glRectf(300,150,500,350);
   glBegin(GL_QUADS);
   glVertex2f(300,150);
   glVertex2f(300,350);
@@ -75,10 +74,6 @@ void reshape(int w,int h){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glutPostRedisplay();
-}
-
-void mouse(int button,int state,int x,int y){
-  
 }
 
 void keyboard(unsigned char key,int x,int y){
@@ -116,7 +111,6 @@ void keyboardSpecials(int key,int x,int y){
   default:
     break;
   }
-  //printf("currentColor[%d] = %f\n",currentIndex,currentColor[currentIndex]);
   glutPostRedisplay();
 }
 
@@ -138,7 +132,6 @@ int main(int argc,char* argv[]){
 
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
-  glutMouseFunc(mouse);
   glutKeyboardFunc(keyboard);
   glutSpecialFunc(keyboardSpecials);
 
